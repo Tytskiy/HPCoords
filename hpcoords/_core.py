@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import ticker
-from scipy.interpolate import CubicSpline
+from scipy.interpolate import CubicSpline, CubicHermiteSpline
 
 
 class BaseDataHadler:
@@ -19,6 +19,12 @@ class BaseDataHadler:
             if index.size:
                 col = np.delete(col, index)
         return col
+
+    def get_directions(self, directions, dim):
+        if directions is None:
+            directions = np.ones(dim)
+        directions = np.asarray(directions)
+        return directions
 
 
 class BasePlotter:
@@ -76,6 +82,14 @@ class BasePlotter:
 
 
 class LinePlotter(BasePlotter):
+    def __init__(self):
+        self.bundling_coef = None
+        super().__init__()
+
+    def create_figure(self, columns, dim, directions, bundling_coef, lower_lim, upper_lim, figsize):
+        self.bundling_coef = bundling_coef
+        super().create_figure(columns, dim, directions, lower_lim, upper_lim, figsize)
+
     def plot_chain(self, data, color, **kwargs):
         for i in range(self.dim-1):
             subspace = data.iloc[:, i:i+2].values
@@ -87,25 +101,38 @@ class LinePlotter(BasePlotter):
                 color=color, **kwargs
             )
 
-    def _prepoccessing_directions(self, data, directions, lower_lim, upper_lim):
-        y_relative = (data-lower_lim)/(upper_lim-lower_lim)
-        y_relative = (directions == [-1, -1])*(1-y_relative) + (directions == [1, 1])*y_relative
-        return y_relative
+    def _prepoccessing(self, data, directions, lower_lim, upper_lim):
+
+        x = np.vstack((np.zeros(data.shape[0]), np.ones(data.shape[0])))
+        if self.bundling_coef is not None:
+            mid = np.full(x.shape[1], 0.5)
+            x = np.vstack((x[0], mid, x[-1]))
+
+        y = (data-lower_lim)/(upper_lim-lower_lim)
+        y = (directions == [-1, -1])*(1-y) + (directions == [1, 1])*y
+
+        if self.bundling_coef is not None:
+            coef = self.bundling_coef
+            bundle = (y[:, 0]+y[:, -1])/2
+            bundle = (bundle-bundle.mean())*coef+bundle.mean()
+            y = np.hstack((y[:, 0][:, None], bundle[:, None], y[:, -1][:, None]))
+        return x.T, y  # Вдоль оси 0 объекты, вдоль оси 1 координаты
 
     def _plot_segments(self, ax, data, directions, lower_lim, upper_lim, color, **kwargs):
-        x_coords = np.vstack((np.zeros(data.shape[0]), np.ones(data.shape[0])))
-        y_relative = self._prepoccessing_directions(data, directions, lower_lim, upper_lim)
 
-        ax.plot(x_coords, y_relative.T, transform=ax.transAxes, c=color, **kwargs)
+        x_coords, y_coords = self._prepoccessing(data, directions, lower_lim, upper_lim)
+        ax.plot(x_coords.T, y_coords.T, transform=ax.transAxes, c=color, **kwargs)
 
 
 class SplinePlotter(LinePlotter):
     def _plot_segments(self, ax, data, directions,
-                       lower_lim, upper_lim, color, lin_num=20, bc_type=((1, 0), (1, 0)), **kwargs):
+                       lower_lim, upper_lim, color, lin_num=20, **kwargs):
 
         x_coords = np.repeat(np.linspace(0, 1, lin_num)[None, :], data.shape[0], axis=0)
 
-        y_relative = self._prepoccessing_directions(data, directions, lower_lim, upper_lim)
-        y_spline = np.apply_along_axis(lambda x: CubicSpline([0, 1], x, bc_type=bc_type)(x_coords[0]),
-                                       axis=1, arr=y_relative)
+        x_tmp, y_coords = self._prepoccessing(data, directions, lower_lim, upper_lim)
+        # Пока что не меняю на HermiteSpline, потому что непонятно какая производная должна быть
+        # в середине
+        spliner = CubicSpline(x_tmp[0], y_coords, bc_type="clamped", axis=1)
+        y_spline = spliner(x_coords[0])
         ax.plot(x_coords.T, y_spline.T, transform=ax.transAxes, c=color, **kwargs)
