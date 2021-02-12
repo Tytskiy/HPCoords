@@ -13,6 +13,10 @@ wrong*/
 *.out
 *.fdb_latexmk
 *.gz
+*.sty 
+*.snm 
+*.toc 
+*.nav
 # C extensions
 *.so
 
