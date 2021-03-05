@@ -5,6 +5,7 @@ __pycache__/
 
 # user settings 
 .vscode
+_*
 #temp settings 
 wrong*/
 #latex
