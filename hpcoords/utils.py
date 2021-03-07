@@ -4,7 +4,7 @@ import seaborn as sn
 
 
 def get_labels_colors(labels=None):
-    uniq = labels.unique()
+    uniq = np.sort(labels.unique())
     pallete = sn.color_palette(n_colors=uniq.shape[0])
 
     colors = dict(zip(uniq, pallete))

@@ -1,5 +1,5 @@
 \documentclass[fleqn, xcolor=x11names]{beamer}
-\usetheme{MyAmsterdam} %тема\
+\usetheme{myamsterdam} %тема\
 \usecolortheme{default}
 \usepackage[utf8]{inputenc}
 \usepackage[russian]{babel}
@@ -12,6 +12,8 @@
 \usepackage{color}
 \usepackage{enumerate}
 
+\usepackage{epigraph}
+\usepackage{makecell}
 % \usepackage{citehack} 
 \usepackage{pgfplots}
 \usepackage{tikz}
@@ -22,23 +24,24 @@
 %my package
 \graphicspath{{../figures/}}
 
-\setbeamertemplate{navigation symbols}{} % отключить навигационные значки
-\setbeamertemplate{footline}{%
-    \hspace{0.94\paperwidth}%
-    \usebeamerfont{title in head/foot}%
-    \insertframenumber\,/\,\inserttotalframenumber%
-} % переопределить нижнуюю панель, убрать всё кроме номера слайда
+\beamertemplatenavigationsymbolsempty
 
+\setbeamertemplate{itemize item}[ball]
+
+\definecolor{my_blue}{RGB}{0, 0, 100}
+
+\setbeamercolor{palette tertiary}{use=structure,fg=white,bg=my_blue}
+\setbeamercolor{block title}{bg=my_blue,fg=white}
+\setbeamercolor{item projected}{fg=white,bg=my_blue}
 
 %\usefonttheme[onlylarge]{structurebold} % названия и текст в колонтитулах выводится полужирным шрифтом.
 \usefonttheme[onlymath]{serif}  % привычный шрифт для математических формул
 %\setbeamerfont*{frametitle}{size=\normalsize,series=\bfseries} % шрифт заголовков слайдов
 \usepackage[nopar]{lipsum} %для генерации большого текста
 
-
 \newminted[pcode]{python}{baselinestretch=1, fontsize=\small}
 \newmintinline[pinline]{python3}{baselinestretch=1}
-\definecolor{bg}{rgb}{0.95,0.95,0.95}
+%\definecolor{bg}{rgb}{0.95,0.95,0.95}
 %\newminted[lcode]{latex}{baselinestretch=1, bgcolor=bg}
 \newmintinline[linline]{latex}{baselinestretch=1}
 
@@ -56,7 +59,6 @@
     left=1mm,
 }
 \definecolor{lcodebg}{rgb}{0.95,0.95,0.95}
-
 
 \usepackage{tikz}
 \usetikzlibrary{arrows,positioning}
@@ -77,17 +79,36 @@
 \begin{document}
 
 \begin{frame}
-\titlepage
+    \titlepage
 \end{frame}
+
+ \begin{frame}{Оглавление}
+     \tableofcontents
+\end{frame}
+
+\section{Введение}
 
 \begin{frame}{Примеры диаграмм}
     \centering
     \begin{tabular}{cc}
         \includegraphics[width=4cm]{example_1.png} &
-         \includegraphics[width=4cm]{example_2.png} \\
-         \includegraphics[width=4cm]{example_3.png} &
-         \includegraphics[width=4cm]{example_4.png} 
-    \end{tabular}       
+        \includegraphics[width=4cm]{example_2.png}   \\
+        \includegraphics[width=4cm]{example_3.png} &
+        \includegraphics[width=4cm]{example_4.png}
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Историческая справка}
+    \begin{quote}
+        The value of data visualization is not seeing “zillions” 
+    of objects but rather recognizing relations among them.
+    \rightline{Alfred Inselberg}
+    \end{quote}
+    \vspace{30px}
+    \begin{itemize}
+        \item Параллельные координаты были известны еще в 19-ом веке
+        \item В 1980-ых были популяризированы Альфредом Инсельбергом
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Классический график в параллельных осях}
@@ -95,60 +116,254 @@
         \centering
         \includegraphics[width=10.5cm]{classic_pc.pdf}
     \end{figure}
+
 \end{frame}
 
-\begin{frame}{Естественные вопросы при построении}
-    \begin{itemize}
-        \item В каком порядке расположить оси?
-        \item В какую сторону направлять оси?
-        \item Какой масштаб выбрать для каждой оси?
-    \end{itemize}
-\end{frame}
-
+\section{Модификации}
 
 \begin{frame}{Модификации: кластеры}
+
+    \vspace{10px}
+
+    Кластер — класс родственных элементов статистической совокупности.
+
     \begin{figure}[htb]
         \centering
         \includegraphics[width=10.5cm]{color_pc.pdf}
     \end{figure}
+
     Чаще всего именно в таком виде используют график в параллельных осях.
 \end{frame}
 
-\begin{frame}{Модификации: сглаживание линий}
+\begin{frame}{Cглаживание линий}
+
+    \vspace{10px}
+
+    Человеку проще воспринимать гладкие линии, поэтому читаемость графика заметно возрастает.
+
     \begin{figure}[htb]
         \centering
         \includegraphics[width=10.5cm]{smooth_pc.pdf}
     \end{figure}
-    Человеку проще воспринимать гладкие линии, поэтому читаемость графика заметно возрастает.
 \end{frame}
 
-\begin{frame}{Модификации: связывание линий}
+\begin{frame}{Cвязывание линий}
     \begin{figure}[htb]
         \centering
         \includegraphics[width=10.5cm]{bundle_0.3_pc.pdf}
     \end{figure}
 \end{frame}
 
-\begin{frame}{Модификации: связывание линий}
+\begin{frame}{Cвязывание линий}  
     \begin{figure}[htb]
         \centering
         \includegraphics[width=10.5cm]{bundle_0.01_pc.pdf}
     \end{figure}
 \end{frame}
 
-\begin{frame}{Модификации: иерархические графики}
+\begin{frame}{Иерархические графики}
+
+    Изображаем статистики распределений соответствующих кластеров (std, min, max, mean)
+    вместо отрисовки каждого объекта.
+
     \begin{figure}[htb]
         \centering
-        \includegraphics[width=10.5cm]{hierarchical.png}
+        \includegraphics[width=5cm]{hierarchical_1.png}
     \end{figure}
 \end{frame}
+
+\begin{frame}{Иерархические графики}
+    Пусть $X=(x_1,\ldots,x_n)$ -- выборка, где $x_i\in \mathbb{R}^n$. 
+
+    \vspace{10px}
+
+    Назовем множество $P$ m-разбиением множества X на m-подмножеств $\{P_1,\ldots,P_m\}$
+    такое, что:
+    \begin{align}
+        \notag &1. P_i \cap  P_j = \oslash, \hspace{10px} \forall i,j =\overline{1,m} \\
+        \notag &2. \bigcup\limits_{i=1}^{m} P_i = X 
+    \end{align}
+
+    Организуем иерархическую структуру в виде дерева, где корнем является $X$, 
+    а каждая вершина сопоставлена элементу разбиения родительской вершины.
+\end{frame}
+
+\begin{frame}{Пример иерархического разбиения}
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=10cm]{hierarchical_graph.png}
+    \end{figure}
+
+\end{frame}
+
+
+\begin{frame}{Иерархические графики}
+
+    Регулируя глубину, мы добавляем/уменьшаем количество кластеров на графике
+    
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=10.5cm]{hierarchical_2.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{3D}
+    \begin{tabular}{cc}
+        \centering
+        \includegraphics[width=6cm]{3d_pc.png} &
+        \includegraphics[width=3.5cm]{multi_relational_pc.png}   \\
+        3D parallel coordinates & \makecell{3D multi-relational \\ parallel coordinates}
+    \end{tabular}
+\end{frame}
+
+\section{Проблемы построения}
+
+\begin{frame}{Естественные вопросы при построении}
+    \begin{itemize}
+        \item В каком порядке расположить оси?
+        \item В какую сторону направлять оси?
+        \item Как много объектов отобразить?
+        \item Какой масштаб выбрать для каждой оси?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Выбор направлений и порядка осей}
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=10.5cm]{upgrade_1.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Выбор направлений и порядка осей}
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=10.5cm]{upgrade_2.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Выбор направлений и порядка осей}
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=10.5cm]{upgrade_3.pdf}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}{Выбор направлений и порядка осей}
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=10.5cm]{upgrade_4.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Влияение количества объектов на читаемость}
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=10.5cm]{base_good_clustering.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Влияение количества объектов на читаемость}
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=10.5cm]{good_clustering.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Влияение количества объектов на читаемость}
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=10.5cm]{base_bad_clustering.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Влияение количества объектов на читаемость}
+    \begin{figure}[htb]
+        \centering
+        \includegraphics[width=10.5cm]{bad_clustering.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Резюмируя}
+    \begin{itemize}
+        \item Изменение степени прозрачности линий.
+        \item Использование гладких линий.
+        \item Связывание линий в рамках кластеров.
+        \item Отображение лишь части объектов.
+        \item \textbf{Изменение порядка и направления осей.}
+    \end{itemize}
+\end{frame}
+
+\section{Методы выбора порядка}
+
+\begin{frame}{Корреляция}
+    Пусть даны две выборки $X=(x_1, \ldots ,x_n), Y=(y_1,\ldots ,y_n)$.
+
+    \begin{block}{Корреляция Пирсона}
+            \centering
+            $\rho_{XY} = 
+            \frac{\sum\limits_{i=1}^{n}(x_i-\overline x)(y_i-\overline y)}
+            {\sqrt{\sum\limits_{i=1}^{n}(x_i-\overline x)^2\sum\limits_{i=1}^{n}(y_i-\overline y)^2}}, 
+            \hspace{15px} \left\lvert \rho_{XY} \right\rvert \leq 1$
+    \end{block}
+
+    Пусть $R_i$ -- ранг наблюдения $x_i$, $S_i$ -- ранг наблюдения $y_i$
+
+    \begin{block}{Корреляция Спирмена}
+        \centering
+        $r_{XY} = 
+        \frac{\sum\limits_{i=1}^{n}(R_i-\overline R)(S_i-\overline S)}
+        {\sqrt{\sum\limits_{i=1}^{n}(R_i-\overline R)^2\sum\limits_{i=1}^{n}(S_i-\overline S)^2}},
+        \hspace{15px} \left\lvert r_{XY} \right\rvert \leq 1$
+    \end{block}
+    $\rho_{XY} = 0$, $r_{XY} = 1$, где $X=Y^2$ и $X$ симметрично распределена относительно нуля.
+
+\end{frame}
+
+\begin{frame}{}
+
+    \begin{block}{Задача о самом длинном пути}
+    Это задача поиска простого пути максимальной длины в заданном графе.
+    Является NP-трудной и не может быть решена за 
+    полиномиальное время для произвольных графов.
+    \end{block}
+
+    \vspace{10px}
+
+    Пусть $X=(x_1,\ldots,x_n)$ -- выборка, где $x_i\in \mathbb{R}^n$. 
+
+    \vspace{10px}
+
+    Построим связный граф $G(V,E)$, где каждая вершина $u^i \in V$ соответствует
+    i-ой координатe (i-ой оси на графике), а каждому ребру $\{u^i,u^j\} \in E$ сопоставим вес равный $|r_{x^i,x^j}|$.
+
+\end{frame}
+
+\begin{frame}{}
+
+    \begin{itemize}
+        \item Простейшим перебором задача решается за $O(n!)$
+        \item Можно свести к задаче коммивояжера.
+        \item С помощью методов динамического программирования можно улучшить асимптотику решения.
+    \end{itemize}
+
+    \vspace{10px}
+
+    \begin{tabular}{cc}
+        \centering
+        \includegraphics[width=5cm]{graph_example_1.png} &
+        \includegraphics[width=5cm]{graph_example_2.png}   \\
+    \end{tabular}
+\end{frame}
+
+\section{О библиотекe}
 
 \begin{frame}{Обзор текущих средств}
     \begin{itemize}
         \item На Python есть простейшая реализация лишь в библиотеке pandas!
         \item ELKI, GGobi, Mondrian, Orange и ROOT.
         \item Parcoords.js интерактивная библиотека на JavaScript.
-    \end{itemize}
+\end{itemize}
 
     \vspace{30px}
     Вывод:
@@ -158,43 +373,43 @@
 
 \end{frame}
 
-\begin{frame}{О библиотеке: цели}
+\begin{frame}{Цели}
     \begin{itemize}
-        \item Дать возможность исследователям ''безболезненно'' использовать график 
-        в параллелльных осях
+        \item Дать возможность исследователям ''безболезненно'' использовать график
+              в параллелльных осях.
         \item Построение красивых и информативных графиков из ''коробки''.
-        \item Реализация всевозможных видов данных графиков
+        \item Реализация всевозможных видов данных графиков.
     \end{itemize}
-\end{frame} 
+\end{frame}
 
-\begin{frame}{О библиотеке: технические подробности}
+\begin{frame}{Технические подробности}
     \begin{itemize}
         \item Статические графики.
-        \item Библиотека пишется на языке Python на базе matplotilb.       
+        \item Библиотека пишется на языке Python на базе matplotilb.
         \item Простой высокоуровневый интерфейс. Как и в библиотеке seaborn методы могут принимать pandas.DataFrame,
-        обычные numpy массивы или списки -- для всего единый интерфейс.
+              обычные numpy массивы или списки -- для всего единый интерфейс.
     \end{itemize}
 \end{frame}
 
-\begin{frame}{О библиотеке: возможности}
+\begin{frame}{Возможности}
     \begin{itemize}
         \item Построение классических графиков в параллельных осях
-        \begin{itemize}
-            \item Возможность рисовать гладкие линии.
-            \item Возможность ''связывания'' линий кластеров.
-            \item Возможность ''связывания'' линий на основе близости. 
-        \end{itemize}
-        \vspace{10px}
+              \begin{itemize}
+                  \item Возможность рисовать гладкие линии.
+                  \item Возможность ''связывания'' линий кластеров.
+                  \item Возможность ''связывания'' линий на основе близости.
+              \end{itemize}
+              \vspace{10px}
         \item Построение иерархических графиков
-        \begin{itemize}
-            \item Отрисовка полупрозрачного градиента.
-            \item Работа с иерархическими кластерами.
-            \item Изображение распределения с помощью градиента.
-        \end{itemize}
+              \begin{itemize}
+                  \item Отрисовка полупрозрачного градиента.
+                  \item Работа с иерархическими кластерами.
+                  \item Изображение распределения с помощью градиента.
+              \end{itemize}
     \end{itemize}
 \end{frame}
 
-\begin{frame}{О библиотеке: дополнительные возможности}
+\begin{frame}{Дополнительные возможности}
     \begin{itemize}
         \item выделение подмножества линий в  диапазоне значений одной из осей.
         \item нахождение оптимального расположения осей.
@@ -205,11 +420,11 @@
 \begin{frame}{Итоги (после первого семестра)}
     \begin{itemize}
         \item Возможность рисовать гладкие линии. \textbf{Пока что не добавлен параметр задающий вид кривой}.
-        \item Возможность ''связывания'' линий кластеров. 
-        Добавлен непрерывный параметр задающий степень связывания.
+        \item Возможность ''связывания'' линий кластеров.
+              Добавлен непрерывный параметр задающий степень связывания.
         \item \textbf{Возможность связывания линий на основе близости не реализована}
         \item Интерфейс для пользователя практически полностью повторяет реализацию seaborn.\footnote{
-            Большинство графиков в презентации нарисованы с помощью данной библиотеки.}
+                  Большинство графиков в презентации нарисованы с помощью данной библиотеки.}
     \end{itemize}
 \end{frame}
 \end{document}
