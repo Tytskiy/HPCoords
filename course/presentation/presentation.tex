@@ -27,13 +27,14 @@
 \beamertemplatenavigationsymbolsempty
 
 \setbeamertemplate{itemize item}[ball]
-
+\setbeamertemplate{itemize subitem}[ball]
 \definecolor{my_blue}{RGB}{0, 0, 100}
 
 \setbeamercolor{palette tertiary}{use=structure,fg=white,bg=my_blue}
 \setbeamercolor{block title}{bg=my_blue,fg=white}
-\setbeamercolor{item projected}{fg=white,bg=my_blue}
 
+\setbeamercolor{item projected}{fg=white,bg=my_blue}
+\setbeamercolor{subitemitem projected}{fg=white,bg=my_blue}
 %\usefonttheme[onlylarge]{structurebold} % названия и текст в колонтитулах выводится полужирным шрифтом.
 \usefonttheme[onlymath]{serif}  % привычный шрифт для математических формул
 %\setbeamerfont*{frametitle}{size=\normalsize,series=\bfseries} % шрифт заголовков слайдов
@@ -200,7 +201,7 @@
 \begin{frame}{Иерархические графики}
 
     Регулируя глубину, мы добавляем/уменьшаем количество кластеров на графике
-    
+
     \begin{figure}[htb]
         \centering
         \includegraphics[width=10.5cm]{hierarchical_2.png}
@@ -359,16 +360,11 @@
 \section{О библиотекe}
 
 \begin{frame}{Обзор текущих средств}
+
     \begin{itemize}
         \item На Python есть простейшая реализация лишь в библиотеке pandas!
         \item ELKI, GGobi, Mondrian, Orange и ROOT.
         \item Parcoords.js интерактивная библиотека на JavaScript.
-\end{itemize}
-
-    \vspace{30px}
-    Вывод:
-    \begin{itemize}
-        \item Необходимо создать свою ''полноценную библиотеку''! \textbf{(исправить это предложение)}
     \end{itemize}
 
 \end{frame}
