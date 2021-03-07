@@ -8,6 +8,7 @@
 \usepackage{amsfonts}
 %\usepackage{amssymb}
 \usepackage{hyperref}
+
 \usepackage{graphics, graphicx}
 \usepackage{color}
 \usepackage{enumerate}
@@ -35,6 +36,8 @@
 
 \setbeamercolor{item projected}{fg=white,bg=my_blue}
 \setbeamercolor{subitemitem projected}{fg=white,bg=my_blue}
+\hypersetup{colorlinks,linkcolor=my_blue,urlcolor=links}
+
 %\usefonttheme[onlylarge]{structurebold} % названия и текст в колонтитулах выводится полужирным шрифтом.
 \usefonttheme[onlymath]{serif}  % привычный шрифт для математических формул
 %\setbeamerfont*{frametitle}{size=\normalsize,series=\bfseries} % шрифт заголовков слайдов
@@ -185,7 +188,7 @@
         \notag &2. \bigcup\limits_{i=1}^{m} P_i = X 
     \end{align}
 
-    Организуем иерархическую структуру в виде дерева, где корнем является $X$, 
+    Организуем иерархическую структуру в виде дерева, где корню соответствует $X$, 
     а каждая вершина сопоставлена элементу разбиения родительской вершины.
 \end{frame}
 
