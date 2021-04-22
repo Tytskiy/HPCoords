@@ -7,8 +7,8 @@ and its variations and hierarchical parallel coordinates.
 
 Простейший график с использованием библиотеки:
 
-<img src="https://i.ibb.co/JqGYXmr/color-pc-1.png">
+![](https://i.ibb.co/JqGYXmr/color-pc-1.png)
 
 Чуть сложнее:
 
-<img src="https://i.ibb.co/59YWRVB/bundle-0-01-pc-1.png">
+![](https://i.ibb.co/59YWRVB/bundle-0-01-pc-1.png)
