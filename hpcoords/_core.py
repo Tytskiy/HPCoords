@@ -2,7 +2,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import ticker
-from scipy.interpolate import CubicSpline, CubicHermiteSpline
+from scipy.interpolate import CubicSpline
+from matplotlib.patches import Polygon
+from .utils import Z_plane, alpha_interpolate
 
 
 class BaseDataHadler:
@@ -80,15 +82,8 @@ class BasePlotter:
         self.axes = axes
         self.ax_twin = ax_twin
 
-
-class LinePlotter(BasePlotter):
-    def __init__(self):
-        self.bundling_coef = None
-        super().__init__()
-
-    def create_figure(self, columns, dim, directions, bundling_coef, lower_lim, upper_lim, figsize):
-        self.bundling_coef = bundling_coef
-        super().create_figure(columns, dim, directions, lower_lim, upper_lim, figsize)
+    def _plot_segments(self, ax, data, directions, lower_lim, upper_lim, color, **kwargs):
+        pass
 
     def plot_chain(self, data, color, **kwargs):
         for i in range(self.dim-1):
@@ -101,9 +96,19 @@ class LinePlotter(BasePlotter):
                 color=color, **kwargs
             )
 
+
+class LinePlotter(BasePlotter):
+    def __init__(self):
+        self.bundling_coef = None
+        super().__init__()
+
+    def create_figure(self, columns, dim, directions, bundling_coef, lower_lim, upper_lim, figsize):
+        self.bundling_coef = bundling_coef
+        super().create_figure(columns, dim, directions, lower_lim, upper_lim, figsize)
+
     def _prepoccessing(self, data, directions, lower_lim, upper_lim):
 
-        x = np.vstack((np.zeros(data.shape[0]), np.ones(data.shape[0])))
+        x = np.hstack((np.zeros(data.shape[0])[:, None], np.ones(data.shape[0])[:, None]))
         if self.bundling_coef is not None:
             mid = np.full(x.shape[1], 0.5)
             x = np.vstack((x[0], mid, x[-1]))
@@ -116,7 +121,7 @@ class LinePlotter(BasePlotter):
             bundle = (y[:, 0]+y[:, -1])/2
             bundle = (bundle-bundle.mean())*coef+bundle.mean()
             y = np.hstack((y[:, 0][:, None], bundle[:, None], y[:, -1][:, None]))
-        return x.T, y  # Вдоль оси 0 объекты, вдоль оси 1 координаты
+        return x, y  # Вдоль оси 0 объекты, вдоль оси 1 координаты
 
     def _plot_segments(self, ax, data, directions, lower_lim, upper_lim, color, **kwargs):
 
@@ -136,3 +141,60 @@ class SplinePlotter(LinePlotter):
         spliner = CubicSpline(x_tmp[0], y_coords, bc_type="clamped", axis=1)
         y_spline = spliner(x_coords[0])
         ax.plot(x_coords.T, y_spline.T, transform=ax.transAxes, c=color, **kwargs)
+
+
+class AggregatePlotter(BasePlotter):
+    def __init__(self):
+        self.aggregate = None
+        super().__init__()
+
+    def create_figure(self, columns, dim, directions, aggregate, lower_lim, upper_lim, figsize):
+        if aggregate == "std":
+            self.aggregate = np.std
+        elif aggregate == "min_max":
+            self.aggregate = (np.min, np.max)
+        else:
+            raise ValueError
+
+        super().create_figure(columns, dim, directions, lower_lim, upper_lim, figsize)
+
+    def _prepoccessing(self, data, directions, lower_lim, upper_lim):
+        y = (data-lower_lim)/(upper_lim-lower_lim)
+        y = (directions == [-1, -1])*(1-y) + (directions == [1, 1])*y
+        return y  # Вдоль оси 0 объекты, вдоль оси 1 координаты
+
+    def _plot_segments(self, ax, data, directions, lower_lim, upper_lim, color, **kwargs):
+        y_coords = self._prepoccessing(data, directions, lower_lim, upper_lim)
+
+        prev_agg, next_agg = self.aggregate(y_coords, axis=0)
+        prev_mean, next_mean = y_coords.mean(axis=0)
+        coords = np.array([
+            [0, prev_mean - prev_agg],
+            [1, next_mean - next_agg],
+            [1, next_mean + next_agg],
+            [0, prev_mean + prev_agg]])
+
+        bbox = (coords[:, 0].min(), coords[:, 0].max(), coords[:, 1].min(), coords[:, 1].max())
+
+        src_img = np.zeros((100, 100, 4), dtype=float)
+        src_img[:, :, [0, 1, 2]] = np.asarray(color)
+
+        upper_y = np.array([prev_mean + prev_agg, next_mean + next_agg])
+        middle_y = np.array([prev_mean, next_mean])
+        lower_y = np.array([prev_mean - prev_agg, next_mean - next_agg])
+
+        upper = Z_plane([0, 1], (upper_y-bbox[2])/(bbox[3]-bbox[2]))
+        middle = Z_plane([0, 1], (middle_y-bbox[2])/(bbox[3]-bbox[2]))
+        lower = Z_plane([0, 1], (lower_y-bbox[2])/(bbox[3]-bbox[2]))
+
+        disc_x = np.linspace(0, 1, 100)
+        disc_y = np.linspace(1, 0, 100)
+
+        src_img[:, :, 3] = alpha_interpolate(disc_x, disc_y, middle, upper, lower)
+
+        poly = Polygon(coords, fc='none', ec="none", transform=ax.transAxes)
+
+        filler = ax.imshow(src_img, aspect='auto', extent=bbox, transform=ax.transAxes)
+        filler.set_clip_path(poly)
+        ax.add_patch(poly)
+        ax.plot([0, 1], [prev_mean, next_mean], color=color, alpha=0.6, transform=ax.transAxes)
