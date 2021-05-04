@@ -3,8 +3,10 @@ from . import utils
 from ._core import LinePlotter, SplinePlotter, AggregatePlotter, BaseDataHadler
 
 
-def parallel_coordinates(data, hue=None, columns=None, directions=None, aggregate=False,
-                         spline=False, bundling_coef=None, figsize=(9, 4), **kwargs):
+def parallel_coordinates(
+        data, hue=None, columns=None, directions=None, aggregate=False, spline=False, bundling_coef=None,
+        max_alpha=1, coef_decrease=1, figsize=(9, 4),
+        **kwargs):
     handler = BaseDataHadler()
     columns = handler.required_columns(data, hue, columns)
     dim = columns.size
@@ -21,7 +23,7 @@ def parallel_coordinates(data, hue=None, columns=None, directions=None, aggregat
         plotter = LinePlotter()
 
     if aggregate:
-        plotter.create_figure(columns, dim, directions, aggregate, lower_lim, upper_lim, figsize)
+        plotter.create_figure(columns, dim, directions, aggregate, lower_lim, upper_lim, max_alpha, coef_decrease, figsize)
     else:
         plotter.create_figure(columns, dim, directions, bundling_coef, lower_lim, upper_lim, figsize)
 

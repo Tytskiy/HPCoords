@@ -146,13 +146,21 @@ class SplinePlotter(LinePlotter):
 class AggregatePlotter(BasePlotter):
     def __init__(self):
         self.aggregate = None
+        self.func_aggregate = None
+        self.max_alpha = None
+        self.coef_decrease = None
         super().__init__()
 
-    def create_figure(self, columns, dim, directions, aggregate, lower_lim, upper_lim, figsize):
-        if aggregate == "std":
-            self.aggregate = np.std
-        elif aggregate == "min_max":
-            self.aggregate = (np.min, np.max)
+    def create_figure(self, columns, dim, directions, aggregate, lower_lim, upper_lim,
+                      max_alpha, coef_decrease, figsize):
+        self.max_alpha = max_alpha
+        self.coef_decrease = coef_decrease
+        self.aggregate = aggregate
+
+        if aggregate == "3std":
+            self.func_aggregate = np.std
+        elif aggregate == "minmax":
+            self.func_aggregate = (np.min, np.max)
         else:
             raise ValueError
 
@@ -166,22 +174,29 @@ class AggregatePlotter(BasePlotter):
     def _plot_segments(self, ax, data, directions, lower_lim, upper_lim, color, **kwargs):
         y_coords = self._prepoccessing(data, directions, lower_lim, upper_lim)
 
-        prev_agg, next_agg = self.aggregate(y_coords, axis=0)
         prev_mean, next_mean = y_coords.mean(axis=0)
-        coords = np.array([
-            [0, prev_mean - prev_agg],
-            [1, next_mean - next_agg],
-            [1, next_mean + next_agg],
-            [0, prev_mean + prev_agg]])
+        if self.aggregate == "3std":
+            prev_agg, next_agg = self.func_aggregate(y_coords, axis=0)
+            coords = np.array([[0, prev_mean - 3*prev_agg],
+                               [1, next_mean - 3*next_agg],
+                               [1, next_mean + 3*next_agg],
+                               [0, prev_mean + 3*prev_agg]])
+        elif self.aggregate == "minmax":
+            prev_min, next_min = self.func_aggregate[0](y_coords, axis=0)
+            prev_max, next_max = self.func_aggregate[1](y_coords, axis=0)
+            coords = np.array([[0, prev_min],
+                               [1, next_min],
+                               [1, next_max],
+                               [0, prev_max]])
 
         bbox = (coords[:, 0].min(), coords[:, 0].max(), coords[:, 1].min(), coords[:, 1].max())
 
         src_img = np.zeros((100, 100, 4), dtype=float)
         src_img[:, :, [0, 1, 2]] = np.asarray(color)
 
-        upper_y = np.array([prev_mean + prev_agg, next_mean + next_agg])
+        upper_y = np.array([coords[3][1], coords[2][1]])
         middle_y = np.array([prev_mean, next_mean])
-        lower_y = np.array([prev_mean - prev_agg, next_mean - next_agg])
+        lower_y = np.array([coords[0][1], coords[1][1]])
 
         upper = Z_plane([0, 1], (upper_y-bbox[2])/(bbox[3]-bbox[2]))
         middle = Z_plane([0, 1], (middle_y-bbox[2])/(bbox[3]-bbox[2]))
@@ -190,11 +205,11 @@ class AggregatePlotter(BasePlotter):
         disc_x = np.linspace(0, 1, 100)
         disc_y = np.linspace(1, 0, 100)
 
-        src_img[:, :, 3] = alpha_interpolate(disc_x, disc_y, middle, upper, lower)
+        src_img[:, :, 3] = alpha_interpolate(
+            disc_x, disc_y, upper, middle, lower, self.max_alpha, self.coef_decrease)
 
         poly = Polygon(coords, fc='none', ec="none", transform=ax.transAxes)
-
         filler = ax.imshow(src_img, aspect='auto', extent=bbox, transform=ax.transAxes)
         filler.set_clip_path(poly)
         ax.add_patch(poly)
-        ax.plot([0, 1], [prev_mean, next_mean], color=color, alpha=0.6, transform=ax.transAxes)
+        ax.plot([0, 1], [prev_mean, next_mean], color=color, transform=ax.transAxes, **kwargs)

@@ -42,13 +42,12 @@ class Z_plane:
         return -(self.a*x+self.c)/self.b
 
 
-def alpha_interpolate(x, y, upper, middle, lower, max_alpha=0.8, coef_decrease=1):
+def alpha_interpolate(x, y, upper, middle, lower, max_alpha=1, coef_decrease=1, **kwargs):
     upper_value = max_alpha*(1-coef_decrease*middle(x, y)/(upper.get_y(x)-middle.get_y(x)))
-    upper_value[upper_value < 0] = 0
+    upper_value[upper_value <= 0] = 0
     upper_value[upper_value > max_alpha] = 0
 
     lower_value = max_alpha*(1+coef_decrease*middle(x, y)/(middle.get_y(x)-lower.get_y(x)))
-    lower_value[lower_value < 0] = 0
+    lower_value[lower_value <= 0] = 0
     lower_value[lower_value >= max_alpha] = 0
-
-    return upper_value + lower_value
+    return (upper_value + lower_value)**coef_decrease
