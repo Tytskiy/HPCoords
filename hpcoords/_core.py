@@ -110,8 +110,8 @@ class LinePlotter(BasePlotter):
 
         x = np.hstack((np.zeros(data.shape[0])[:, None], np.ones(data.shape[0])[:, None]))
         if self.bundling_coef is not None:
-            mid = np.full(x.shape[1], 0.5)
-            x = np.vstack((x[0], mid, x[-1]))
+            mid = np.full(x.shape[0], 0.5)
+            x = np.vstack((x[:, 0], mid, x[:, -1])).T
 
         y = (data-lower_lim)/(upper_lim-lower_lim)
         y = (directions == [-1, -1])*(1-y) + (directions == [1, 1])*y
