@@ -50,6 +50,9 @@ class BasePlotter:
         self.figsize = figsize
 
         fig, axes = plt.subplots(1, dim-1, figsize=figsize)
+        if not isinstance(axes, np.ndarray):
+            axes = np.asarray([axes])
+            
         fig.subplots_adjust(wspace=0)
         for i, ax in enumerate(axes):
             ax.spines['top'].set_visible(False)
